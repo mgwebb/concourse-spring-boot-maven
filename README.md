@@ -9,7 +9,7 @@ Prerequisites:
 - [Vagrant]
 - [VirtualBox]
 
-```
+```sh
 brew cask install java
 brew cask install vagrant
 brew cask install virtualbox
@@ -19,7 +19,7 @@ brew cask install virtualbox
 
 Using the [Spring Boot CLI]:
 
-```
+```sh
 spring init concourse-spring-boot-maven --dependencies=web -build=maven
 ```
 
@@ -27,7 +27,7 @@ or you can use [Spring Initializr](https://start.spring.io/).
 
 ## Check the web app runs locally
 
-```
+```sh
 ./mvnw clean spring-boot:run
 open http://localhost:8080
 ```
@@ -36,7 +36,7 @@ open http://localhost:8080
 
 The first job in the pipeline will package the app using Maven.
 
-```
+```sh
 mkdir ci/
 touch ci/pipeline.yml
 ```
@@ -98,21 +98,21 @@ run:
 
 The Concourse team provides a lite version that can be run locally:
 
-```
+```sh
 vagrant init concourse/lite
 vagrant up
 ```
 
 ## Download the Concourse CLI
 
-```
+```sh
 open http://192.168.100.4:8080
 ```
 
 Download the `fly` binary from the Concourse, by clicking on the Apple icon.
 Then make it executable and put it in your $PATH, for example:
 
-```
+```sh
 install ~/Downloads/fly /usr/local/bin/fly
 ```
 
@@ -120,19 +120,19 @@ install ~/Downloads/fly /usr/local/bin/fly
 
 Create a new Concourse target for `fly` called `lite` and login:
 
-```
+```sh
 fly --target lite login --concourse-url http://192.168.100.4:8080
 ```
 
 Create a Concourse pipeline called `spring-boot-maven` using the resources and jobs.
 
-```
+```sh
 fly --target lite set-pipeline --pipeline spring-boot-maven --config <(cat ci/resources.yml ci/jobs.yml)
 ```
 
 Unpause the new pipeline using `fly`, or click Play in the web UI.
 
-```
+```sh
 fly --target lite unpause-pipeline --pipeline spring-boot-maven
 ```
 
