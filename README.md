@@ -2,12 +2,13 @@
 
 This is an example Concourse pipeline for a Spring Boot web app built with Maven.
 
-Prerequisites:
+Prerequisites (and versions used):
 
-- Mac OS X
-- [Java 8 SDK]
-- [Vagrant]
-- [VirtualBox]
+- Mac OS X (10.10.5)
+- [Homebrew] (0.9.5)
+- [Java 8 SDK] (build 1.8.0_73-b02)
+- [Vagrant] (v1.8.1)
+- [VirtualBox] (v5.0.16)
 
 ```sh
 brew cask install java
@@ -17,13 +18,19 @@ brew cask install virtualbox
 
 ## Create a Sprint Boot web app
 
-Using the [Spring Boot CLI]:
+You can use [Spring Initializr] and download a Spring Boot app with the `web` dependency, or install the Spring Boot CLI:
 
 ```sh
-spring init concourse-spring-boot-maven --dependencies=web -build=maven
+brew update
+brew tap pivotal/tap
+brew install springboot
 ```
 
-or you can use [Spring Initializr](https://start.spring.io/).
+And run:
+
+```
+spring init concourse-spring-boot-maven --dependencies=web -build=maven
+```
 
 ## Check the web app runs locally
 
@@ -70,7 +77,7 @@ resources:
 And it will run the package task, which tells Concourse to:
 
 - create a linux container
-- using the latest Java Dockerfile published on [Docker Hub]
+- using the [Java 8 Dockerfile] published on Docker Hub
 - add the `source-code` resource to the container
 - run a command in the container
 
@@ -82,7 +89,7 @@ image_resource:
   type: docker-image
   source:
     repository: java
-    tag: latest
+    tag: "8"
 
 inputs:
 - name: source-code
@@ -90,6 +97,9 @@ inputs:
 run:
   path: "source-code/mvnw"
   args: ["--file", "source-code/pom.xml", "package"]
+
+params:
+  MAVEN_BASEDIR: source-code
 ```
 
 > Note: there is no need to run `./mvnw clean` because Concourse creates a new container for every task.
@@ -102,6 +112,8 @@ The Concourse team provides a lite version that can be run locally:
 vagrant init concourse/lite
 vagrant up
 ```
+
+At the time of writing the version was 0.75.0.
 
 ## Download the Concourse CLI
 
@@ -137,9 +149,9 @@ fly --target lite unpause-pipeline --pipeline spring-boot-maven
 ```
 
 
+[Homebrew]: http://brew.sh/
 [Java 8 SDK]: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
-[Spring Boot CLI]: http://pivotal-guides.cfapps.io/frameworks/spring/getting-started/
 [Spring Initializr]: https://start.spring.io/
-[Docker Hub]: https://hub.docker.com/_/java/
+[Java 8 Dockerfile]: https://hub.docker.com/_/java/
 [Vagrant]: https://www.vagrantup.com/downloads.html
 [VirtualBox]: https://www.virtualbox.org/wiki/Downloads
