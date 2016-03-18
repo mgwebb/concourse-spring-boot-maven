@@ -12,3 +12,6 @@ inputs:
 run:
   path: "source-code/mvnw"
   args: ["--file", "source-code/pom.xml", "package"]
+
+params:
+  MAVEN_BASEDIR: source-code
