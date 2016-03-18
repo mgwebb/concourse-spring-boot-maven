@@ -3,7 +3,17 @@
 This is an example Concourse pipeline for a Spring Boot web app built with Maven.
 
 Prerequisites:
+
+- Mac OS X
 - [Java 8 SDK]
+- [Vagrant]
+- [VirtualBox]
+
+```
+brew cask install java
+brew cask install vagrant
+brew cask install virtualbox
+```
 
 ## Create a Sprint Boot web app
 
@@ -84,8 +94,52 @@ run:
 
 > Note: there is no need to run `./mvnw clean` because Concourse creates a new container for every task.
 
+## Start Concourse lite
+
+The Concourse team provides a lite version that can be run locally:
+
+```
+vagrant init concourse/lite
+vagrant up
+```
+
+## Download the Concourse CLI
+
+```
+open http://192.168.100.4:8080
+```
+
+Download the `fly` binary from the Concourse, by clicking on the Apple icon.
+Then make it executable and put it in your $PATH, for example:
+
+```
+install ~/Downloads/fly /usr/local/bin/fly
+```
+
+## Create the Concourse pipeline
+
+Create a new Concourse target for `fly` called `lite` and login:
+
+```
+fly --target lite login --concourse-url http://192.168.100.4:8080
+```
+
+Create a Concourse pipeline called `spring-boot-maven` using the resources and jobs.
+
+```
+fly --target lite set-pipeline --pipeline spring-boot-maven --config <(cat ci/resources.yml ci/jobs.yml)
+```
+
+Unpause the new pipeline using `fly`, or click Play in the web UI.
+
+```
+fly --target lite unpause-pipeline --pipeline spring-boot-maven
+```
+
 
 [Java 8 SDK]: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 [Spring Boot CLI]: http://pivotal-guides.cfapps.io/frameworks/spring/getting-started/
 [Spring Initializr]: https://start.spring.io/
 [Docker Hub]: https://hub.docker.com/_/java/
+[Vagrant]: https://www.vagrantup.com/downloads.html
+[VirtualBox]: https://www.virtualbox.org/wiki/Downloads
