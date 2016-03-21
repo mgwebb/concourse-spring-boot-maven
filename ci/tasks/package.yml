@@ -10,8 +10,4 @@ inputs:
 - name: source-code
 
 run:
-  path: "source-code/mvnw"
-  args: ["--file", "source-code/pom.xml", "package"]
-
-params:
-  MAVEN_BASEDIR: source-code
+  path: source-code/ci/tasks/package.sh

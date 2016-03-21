@@ -18,7 +18,9 @@ brew cask install virtualbox
 
 ## Create a Sprint Boot web app
 
-You can use [Spring Initializr] and download a Spring Boot app with the `web` dependency, or install the Spring Boot CLI:
+You can use [Spring Initializr] and download a Spring Boot app with the `web` dependency.
+
+Or install the Spring Boot CLI:
 
 ```sh
 brew update
@@ -26,7 +28,7 @@ brew tap pivotal/tap
 brew install springboot
 ```
 
-And run:
+And create a new Spring Boot app from the command line:
 
 ```
 spring init concourse-spring-boot-maven --dependencies=web -build=maven
@@ -49,6 +51,7 @@ The first job in the pipeline will get the source code and package using Maven.
 
 ```yaml
 # ci/jobs.yml
+
 jobs:
 - name: package
   plan:
@@ -65,6 +68,7 @@ The `package` job gets `source-code`, which is a git resource:
 
 ```yaml
 # ci/resources.yml
+
 resources:
 - name: source-code
   type: git
@@ -75,15 +79,11 @@ resources:
 
 ### Task
 
-Then it runs the test task, which tells Concourse to:
-
-- create a linux container
-- using the [Java 8 Dockerfile] published on Docker Hub
-- add the `source-code` resource to the container
-- run the Maven test command in the container
+Then it runs the `package` task:
 
 ```yaml
 # ci/tasks/package.yml
+
 platform: linux
 
 image_resource:
@@ -96,14 +96,28 @@ inputs:
 - name: source-code
 
 run:
-  path: "source-code/mvnw"
-  args: ["--file", "source-code/pom.xml", "package"]
-
-params:
-  MAVEN_BASEDIR: source-code
+  path: source-code/ci/tasks/package.sh
 ```
 
-> Note: there is no need to run `./mvnw clean` because Concourse creates a new container for every task.
+Which tells Concourse to:
+
+- create a linux container
+- using the [Java 8 Dockerfile] published on Docker Hub
+- add the `source-code` resource to the container
+- and run the package script in the container
+
+```bash
+# ci/tasks/package.sh
+
+#!/bin/bash
+
+set -e -u -x
+
+cd source-code/
+./mvnw package
+```
+
+> Note: there is no need to run `./mvnw clean pacakge` because Concourse creates a new container for every task.
 
 ## Start Concourse lite
 
@@ -143,6 +157,8 @@ Create a Concourse pipeline called `spring-boot-maven` using the resources and j
 ```sh
 fly --target lite set-pipeline --pipeline spring-boot-maven --config <(cat ci/resources.yml ci/jobs.yml)
 ```
+
+> NB: the resources and jobs can be combined in one file called `pipeline.yml`. However, separating them into two files is useful as the pipeline grows in size.
 
 Unpause the new pipeline using `fly`, or click Play in the web UI.
 
