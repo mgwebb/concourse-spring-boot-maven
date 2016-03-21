@@ -4,11 +4,11 @@ This is an example Concourse pipeline for a Spring Boot web app built with Maven
 
 Prerequisites (and versions used):
 
-- Mac OS X (10.10.5)
-- [Homebrew] (0.9.5)
-- [Java 8 SDK] (build 1.8.0_73-b02)
-- [Vagrant] (v1.8.1)
-- [VirtualBox] (v5.0.16)
+- Mac OS X, 10.10.5
+- [Homebrew], 0.9.5
+- [Java 8 SDK], build 1.8.0_73-b02
+- [Vagrant], v1.8.1
+- [VirtualBox], v5.0.16
 
 ```sh
 brew cask install java
@@ -41,14 +41,11 @@ open http://localhost:8080
 
 ## Create a Concourse pipeline
 
-The first job in the pipeline will package the app using Maven.
+Concourse pipelines consist of three [primitives]: jobs, resources and tasks.
 
-```sh
-mkdir ci/
-touch ci/pipeline.yml
-```
+### Job
 
-The package job will get the source code and run a maven command:
+The first job in the pipeline will get the source code and package using Maven.
 
 ```yaml
 # ci/jobs.yml
@@ -62,7 +59,9 @@ jobs:
     file: source-code/ci/tasks/package.yml
 ```
 
-This job requires `source-code`, which is a git resource:
+### Resource
+
+The `package` job gets `source-code`, which is a git resource:
 
 ```yaml
 # ci/resources.yml
@@ -74,12 +73,14 @@ resources:
     branch: master
 ```
 
-And it will run the package task, which tells Concourse to:
+### Task
+
+Then it runs the test task, which tells Concourse to:
 
 - create a linux container
 - using the [Java 8 Dockerfile] published on Docker Hub
 - add the `source-code` resource to the container
-- run a command in the container
+- run the Maven test command in the container
 
 ```yaml
 # ci/tasks/package.yml
@@ -122,7 +123,8 @@ open http://192.168.100.4:8080
 ```
 
 Download the `fly` binary from the Concourse, by clicking on the Apple icon.
-Then make it executable and put it in your $PATH, for example:
+
+Then make it executable and put it in your `$PATH`, for example:
 
 ```sh
 install ~/Downloads/fly /usr/local/bin/fly
@@ -155,3 +157,4 @@ fly --target lite unpause-pipeline --pipeline spring-boot-maven
 [Java 8 Dockerfile]: https://hub.docker.com/_/java/
 [Vagrant]: https://www.vagrantup.com/downloads.html
 [VirtualBox]: https://www.virtualbox.org/wiki/Downloads
+[primitives]: http://concourse.ci/concepts.html
